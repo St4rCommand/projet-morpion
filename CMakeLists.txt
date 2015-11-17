@@ -3,5 +3,17 @@ project(projet-morpion)
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wall -Werror")
 
-set(SOURCE_FILES morpion-serveur/morpion-serveur.c)
-add_executable(untitled1 ${SOURCE_FILES})
+file(
+    GLOB_RECURSE
+    SERVEUR_SOURCE_FILES
+    morpion-serveur/*
+)
+
+file(
+    GLOB_RECURSE
+    CLIENT_SOURCE_FILES
+    morpion-client/*
+)
+
+add_executable(morpion-serveur ${SERVEUR_SOURCE_FILES})
+add_executable(morpion-client ${CLIENT_SOURCE_FILES})
