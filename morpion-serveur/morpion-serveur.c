@@ -3,6 +3,8 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
+#include <pthread.h>
+#include "morpion-serveur.h"
 
 #define TAILLE_MAX_NOM_MACHINE_LOCALE 256
 
@@ -28,6 +30,10 @@ int main(int argc, char **argv)
 
     hostent* informationsHote;
 //    servent* informationsService;
+
+    pthread_t* clients = malloc(sizeof(pthread_t));
+    int numClient = 0;
+    int resultatCreationThread;
 
     // Récupérer le nom de la machine
     char nomMachineLocale[TAILLE_MAX_NOM_MACHINE_LOCALE+1]; //
@@ -82,14 +88,36 @@ int main(int argc, char **argv)
             exit(1);
         }
 
-        // Traitement des messages reçus
         printf("Message reçu\n");
 
+        // Création du thread pour le client
+        resultatCreationThread = pthread_create(&clients[numClient], NULL, gererClient, NULL);
+        if(resultatCreationThread == -1) {
+            perror("Le thread n'a pas pu être créé");
+        }
+
+        /*if (pthread_join(clients[numClient], NULL)) {
+            perror("Impossible de lier le thread créé");
+            exit(1);
+        }*/
+
+        numClient++;
+        clients = realloc(clients, (numClient + 1) * sizeof(pthread_t));
+
+
+
         // Fermeture du socket
-        close(descripteurNouveauSocket);
+        //close(descripteurNouveauSocket);
     }
+}
 
-    printf("Serveur lancé");
+void *gererClient(void *arg) {
+    printf("Client connecté\n");
 
-    return 0;
+    (void) arg;
+
+    sleep(100);
+
+    printf("Fin du traitement\n");
+    pthread_exit(NULL);
 }

@@ -17,3 +17,5 @@ file(
 
 add_executable(morpion-serveur ${SERVEUR_SOURCE_FILES})
 add_executable(morpion-client ${CLIENT_SOURCE_FILES})
+
+target_link_libraries(morpion-serveur pthread)

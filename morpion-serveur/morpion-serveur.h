@@ -1,4 +1,6 @@
 #ifndef PROJET_MORPION_MORPION_SERVEUR_H
 #define PROJET_MORPION_MORPION_SERVEUR_H
 
+void *gererClient(void *arg);
+
 #endif //PROJET_MORPION_MORPION_SERVEUR_H
