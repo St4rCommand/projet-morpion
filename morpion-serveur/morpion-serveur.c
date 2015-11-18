@@ -11,6 +11,10 @@ typedef struct sockaddr_in sockaddr_in;
 typedef struct hostent hostent;
 typedef struct servent servent;
 
+// Ecouter le réseau
+// A chaque nouvelle connexion, il faut créer un thread
+//
+
 int main(int argc, char **argv)
 {
     printf("Lancement du serveur\n");
@@ -38,10 +42,10 @@ int main(int argc, char **argv)
     }
 
     // Informations sur la machine locale
-    bcopy((char*)informationsHote->h_addr_list,
+    bcopy(informationsHote->h_addr,
           (char*)&adresseLocale.sin_addr,
-          informationsHote->h_length);
-    adresseLocale.sin_family = informationsHote->h_addrtype;
+          (size_t) informationsHote->h_length);
+    adresseLocale.sin_family = AF_INET;
     adresseLocale.sin_addr.s_addr = INADDR_ANY;
     adresseLocale.sin_port = htons(5000);
 
@@ -71,7 +75,7 @@ int main(int argc, char **argv)
         // Gestion de la connexion des clients
         descripteurNouveauSocket = accept(
                 descripteurSocket,
-                (sockaddr*)(&adresseClientCourant),
+                (sockaddr*)&adresseClientCourant,
                 (socklen_t*)&longueurAdresseCourante);
         if (descripteurNouveauSocket < 0) {
             perror("Impossible d'accepter la connexion avec le client.");
