@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <netdb.h>
 #include <string.h>
-#include <unistd.h>
 
 typedef struct sockaddr sockaddr;
 typedef struct sockaddr_in sockaddr_in;
@@ -14,87 +13,44 @@ int main(int argc, char **argv)
 {
     printf("Lancement du client\n");
 
-    int descripteurSocket;
-    ssize_t longueurBuffer;
-
-    sockaddr_in adresseLocale;
-
-    hostent* informationsHote;
-//    servent* informationsService;
-
-    char buffer[256];
-    char* nomProgramme;
-    char* nomMachineDistante;
-    char* message;
-
-    // Vérification de la présence des arguments
-    if (argc != 3) {
-        perror("Saisir les deux paramètres.");
+    /* === INITIALISATION DU CLIENT === */
+    // Initialisation du socket client
+    int clientSocket;
+    clientSocket = socket(AF_INET, SOCK_STREAM, 0);
+    if (clientSocket < 0) {
+        perror("Impossible de créer la socket du client.");
         exit(1);
     }
 
-    // Récupération des arguments
-    nomProgramme = argv[0];
-    nomMachineDistante = argv[1];
-    message = argv[2];
-
-    printf("Nom du programme : %s\n",nomProgramme);
-    printf("Nom de la machine distante : %s\n", nomMachineDistante);
-    printf("Message à envoyer : %s\n", message);
-
-    // Récupération du nom de la machine
-    informationsHote = gethostbyname(nomMachineDistante);
-    if (informationsHote == NULL) {
+    /* === INITIALISATION DU SERVEUR === */
+    // Récupération des informations du serveur
+    hostent *serveurInformations;
+    serveurInformations = gethostbyname("127.0.0.1");
+    if (serveurInformations == NULL) {
         perror("Impossible de trouver le serveur à partir de son adresse.");
         exit(1);
     }
 
-    // Copie des données de informationsHote vers adresseLocale
-    bcopy(informationsHote->h_addr,
-          (char*)&adresseLocale.sin_addr,
-          (size_t) informationsHote->h_length);
-    adresseLocale.sin_family = AF_INET;
+    // Initialisation de l'adresse serveur
+    sockaddr_in serveurAdresse;
+    int serveurAdresseTaille = sizeof(serveurAdresse);
+    bcopy(
+            serveurInformations->h_addr,
+            (char *) &serveurAdresse.sin_addr,
+            (size_t) serveurInformations->h_length
+    );
+    serveurAdresse.sin_family = AF_INET;
+    serveurAdresse.sin_port = htons(5000);
+//    serveurAdresse.sin_addr.s_addr = (in_addr_t) *serveurInformations->h_addr;
+//    serveurAdresse.sin_zero = memset(serveurAdresse.sin_zero, 0, 8);
 
-    // Création du nouveau numéro de port
-    adresseLocale.sin_port = htons(5000);
-
-    printf("Port utilisé : %d\n", adresseLocale.sin_port);
-
-    // Création de la socket
-    descripteurSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (descripteurSocket < 0) {
-        perror("Impossible de créer la socket de connexion avec le serveur.");
-        exit(1);
+    /* === LANCEMENT DU CLIENT === */
+    // Connexion au serveur
+    if (connect(clientSocket, (sockaddr*) &serveurAdresse, (socklen_t) serveurAdresseTaille) == -1) {
+        printf("Echec de la connexion au serveur.\n");
+    } else {
+        printf("Connexion au serveur réussie.\n");
     }
-
-    printf("Socket créé\n");
-
-    // Tentative de connexion au serveur avec les infos de adresseLocale
-    int resultatConnexion = connect(descripteurSocket, (sockaddr*)(&adresseLocale), sizeof(adresseLocale));
-    if (resultatConnexion < 0) {
-        perror("Impossible de se connecter au serveur.");
-        exit(1);
-    }
-
-    printf("Connexion établie avec le serveur\n");
-
-    // Envoi d'un message au serveur
-    ssize_t resultatEnvoieMessage = write(descripteurSocket, message, strlen(message));
-    if (resultatEnvoieMessage < 0) {
-        perror("Impossible d'écrire le message au serveur");
-        exit(1);
-    }
-
-    // Lecture de la réponse en provenance du serveur
-    while ((longueurBuffer = read(descripteurSocket, buffer, sizeof(buffer))) >0 ) {
-        printf("Réponse du serveur : \n");
-        write(1, buffer, (size_t) longueurBuffer);
-    }
-
-    printf("Fin de la récéption\n");
-
-    // Fermeture du socket
-    close(descripteurSocket);
 
     exit(0);
 }
