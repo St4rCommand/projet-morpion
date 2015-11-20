@@ -7,12 +7,14 @@ file(
     GLOB_RECURSE
     SERVEUR_SOURCE_FILES
     morpion-serveur/*
+    morpion-outils/*
 )
 
 file(
     GLOB_RECURSE
     CLIENT_SOURCE_FILES
     morpion-client/*
+    morpion-outils/*
 )
 
 add_executable(morpion-serveur ${SERVEUR_SOURCE_FILES})
