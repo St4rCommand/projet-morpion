@@ -83,11 +83,22 @@ int main(int argc, char **argv)
 
     /* === ECHANGE AVEC LE CLIENT === */
     // TODO Problème avec les espaces
-    // Lire le message reçu
-    lireMessage(clientSocket);
+//    char* messageRecu = "";
+    char* messageEnvoye = "";
+    while (1) {
+        // Lire le message reçu
+        lireMessage(clientSocket);
 
-    // Envoyer une réponse
-    envoyerMessage(clientSocket, "Coucou, le message a bien été reçu");
+        // Saisie du message
+        saisirMessage(messageEnvoye);
+
+        // Envoyer une réponse
+        envoyerMessage(clientSocket, messageEnvoye);
+
+        if (strcmp(messageEnvoye, "EXIT")) {
+            break;
+        }
+    }
 
     /* === FIN DE LA CONNEXION AVEC LE CLIENT === */
     close(clientSocket);

@@ -30,3 +30,9 @@ void envoyerMessage(int socket, char *message) {
 
     printf("Message envoyé : %s\n", message);
 }
+
+void saisirMessage(char* messageSaisi) {
+    printf("Message à saisir : ");
+    scanf("%s", messageSaisi);
+    printf("\n");
+}

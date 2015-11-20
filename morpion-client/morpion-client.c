@@ -67,12 +67,26 @@ int main(int argc, char **argv)
 
 
     /* === COMMUNICATION AVEC LE SERVEUR === */
-    // TODO Problème avec les espaces
-    // Envoi du message
-    envoyerMessage(clientSocket, "Bonjour, je cherche à me connecter.");
+    char* messageRecu = "";
+    char* messageEnvoye = "";
+    while (1) {
+        // Saisie du message
+        saisirMessage(messageEnvoye);
 
-    // Afficher la réponse reçue
-    lireMessage(clientSocket);
+        // TODO Problème avec les espaces
+        // Envoi du message
+        envoyerMessage(clientSocket, messageEnvoye);
+
+        // Afficher la réponse reçue
+        messageRecu = lireMessage(clientSocket);
+
+        if (strcmp(messageRecu, "EXIT") == 0) {
+            break;
+        }
+
+        messageRecu = "";
+        messageEnvoye = "";
+    }
 
     /* === FIN DE LA CONNEXION AVEC LE SERVEUR === */
     close(clientSocket);
