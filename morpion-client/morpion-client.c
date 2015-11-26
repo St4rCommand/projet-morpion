@@ -79,8 +79,6 @@ int main(int argc, char **argv)
     }
 
 
-
-
     /* === FIN DE LA CONNEXION AVEC LE SERVEUR === */
     // Fermeture du socket
     close(clientSocket);
