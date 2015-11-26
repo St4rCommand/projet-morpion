@@ -67,14 +67,22 @@ int main(int argc, char **argv)
 
 
     /* === COMMUNICATION AVEC LE SERVEUR === */
-    // TODO Problème avec les espaces
     // Envoi du message
     envoyerMessage(clientSocket, "Bonjour, je cherche à me connecter.");
+    while (1) {
 
-    // Afficher la réponse reçue
-    lireMessage(clientSocket);
+        // Afficher la réponse reçue
+        if(lireMessage(clientSocket) < 0) {
+            perror("connexion avec le serveur interrompue.\n");
+            break;
+        }
+    }
+
+
+
 
     /* === FIN DE LA CONNEXION AVEC LE SERVEUR === */
+    // Fermeture du socket
     close(clientSocket);
     printf("Fin de la connexion avec le serveur.\n");
 

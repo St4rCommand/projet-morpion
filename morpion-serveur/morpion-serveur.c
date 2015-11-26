@@ -3,8 +3,9 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <string.h>
-#include "./../morpion-outils/outils-messages.h"
+#include <pthread.h>
 #include "morpion-serveur.h"
+#include "gestionnaire-client.h"
 
 #define TAILLE_SERVEUR_MACHINE_NOM 256
 
@@ -65,35 +66,37 @@ int main(int argc, char **argv)
     int clientAdresseTaille = sizeof(clientAdresse);
     initClientAdresse(&clientAdresse);
 
+    //Initialisation du thread
+    pthread_t threadClient;
+
 
 
 
     /* === LANCEMENT DU SERVEUR === */
     // Mise à l'écoute du serveur
     listen(serveurSocket, 5);
+    while (1) {
 
-    // Attente de connexion d'un client
-    clientSocket = accept(serveurSocket, (sockaddr*) &clientAdresse, (socklen_t *) &clientAdresseTaille);
-    if (clientSocket < 0 ) {
-        perror("Impossible d'accepter la connexion avec le client.");
-        exit(1);
+        printf("Attente de la connexion d'un client.\n");
+
+        // Attente de connexion d'un client
+        clientSocket = accept(serveurSocket, (sockaddr*) &clientAdresse, (socklen_t *) &clientAdresseTaille);
+        if (clientSocket < 0 ) {
+
+            perror("Impossible d'accepter la connexion avec le client.");
+            exit(1);
+        } else {
+
+            // Création du thread pour le nouveau client
+            if(pthread_create(&threadClient, NULL, gestionnaireClient, &clientSocket) == -1) {
+                perror("Impossible de créer un thread pour le client.");
+            }
+
+            printf("Connexion avec un client établie.\n");
+        }
     }
-    printf("Connexion avec le client établie.\n");
 
-
-    /* === ECHANGE AVEC LE CLIENT === */
-    // TODO Problème avec les espaces
-    // Lire le message reçu
-    lireMessage(clientSocket);
-
-    // Envoyer une réponse
-    envoyerMessage(clientSocket, "Coucou, le message a bien été reçu");
-
-    /* === FIN DE LA CONNEXION AVEC LE CLIENT === */
-    close(clientSocket);
-    printf("Fin de la connexion avec le client.\n");
-
-    exit(0);
+//    exit(0);
 }
 
 void initServeurAdresse(sockaddr_in *serveurAdresse, hostent *serveurInformations) {
