@@ -17,6 +17,10 @@ int main(int argc, char **argv)
 
 
     /* === INITIALISATION DU CLIENT === */
+    // Saisie du nom
+    char message[256] = "";
+    saisirMessage(message, "Pseudonyme : ");
+
     // Initialisation du socket client
     int clientSocket;
     clientSocket = socket(AF_INET, SOCK_STREAM, 0);
@@ -67,8 +71,9 @@ int main(int argc, char **argv)
 
 
     /* === COMMUNICATION AVEC LE SERVEUR === */
+
     // Envoi du message
-    envoyerMessage(clientSocket, "Bonjour, je cherche à me connecter.");
+    envoyerMessage(clientSocket, message);
     while (1) {
 
         // Afficher la réponse reçue

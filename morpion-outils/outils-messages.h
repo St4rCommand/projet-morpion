@@ -8,6 +8,6 @@ char* lireMessage(int socket);
 void envoyerMessage(int socket, char *message);
 
 // Saisir un message
-void saisirMessage(char* messageSaisi);
+void saisirMessage(char* messageSaisi, char *messageAffiche);
 
 #endif //PROJET_MORPION_OUTILS_MESSAGES_H

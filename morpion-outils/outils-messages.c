@@ -40,8 +40,8 @@ void envoyerMessage(int socket, char *message) {
     printf("Message envoyé : %s\n", message);
 }
 
-void saisirMessage(char* messageSaisi) {
-    printf("Message à saisir : ");
+void saisirMessage(char* messageSaisi, char *messageAffiche) {
+    printf("%s", messageAffiche);
     scanf("%s", messageSaisi);
     printf("\n");
 }
