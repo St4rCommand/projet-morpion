@@ -72,7 +72,7 @@ int main(int argc, char **argv)
     while (1) {
 
         // Afficher la réponse reçue
-        if(lireMessage(clientSocket) < 0) {
+        if((int) strlen(lireMessage(clientSocket)) <= 0) {
             perror("connexion avec le serveur interrompue.\n");
             break;
         }

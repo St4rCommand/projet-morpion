@@ -6,6 +6,7 @@
 #include <stdio.h>
 #include <pthread.h>
 #include <stdlib.h>
+#include <string.h>
 #include "gestionnaire-client.h"
 #include "./../morpion-outils/outils-messages.h"
 
@@ -17,14 +18,15 @@ void *gestionnaireClient(void *arg) {
 
     /* === ECHANGE AVEC LE CLIENT === */
     while (1) {
+
         // Lire le message reçu
-        if (lireMessage(clientSocket) < 0) {
+        if ((int) strlen(lireMessage(clientSocket)) <= 0) {
             perror("connexion avec le client interrompue.\n");
             break;
+        } else {
+            // Envoyer une réponse
+            envoyerMessage(clientSocket, "Coucou, le message a bien été reçu.");
         }
-
-        // Envoyer une réponse
-        envoyerMessage(clientSocket, "Coucou, le message a bien été reçu.");
     }
 
     /* === FIN DE LA CONNEXION AVEC LE CLIENT === */
