@@ -7,4 +7,8 @@
 
 void *gestionnairePartie(void *arg);
 
+int gestionnaireJoueur(int *clientSockets, int joueurCourant, int joueurSuivant);
+
+void gestionnairePlacerSymbole(char **messageRecuTraite);
+
 #endif //PROJET_MORPION_GESTIONNAIRE_PARTIE_H
