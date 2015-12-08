@@ -72,9 +72,9 @@ int main(int argc, char **argv)
 
 
     // Tableau des deux joueurs de la partie
-    int clientSockets[2];
-    clientSockets[0] = clientSocket;
-    clientSockets[1] = clientSocket;
+    //int clientSockets[2];
+    //clientSockets[0] = clientSocket;
+    //clientSockets[1] = clientSocket;
 
     /* === LANCEMENT DU SERVEUR === */
     // Mise à l'écoute du serveur
@@ -84,18 +84,23 @@ int main(int argc, char **argv)
         printf("Attente de la connexion d'un client.\n");
 
         // Attente de connexion d'un client
-        clientSockets[0] = accept(serveurSocket, (sockaddr*) &clientAdresse, (socklen_t *) &clientAdresseTaille);
-        printf("Joueur 1.\n");
-        clientSockets[1] = accept(serveurSocket, (sockaddr*) &clientAdresse, (socklen_t *) &clientAdresseTaille);
-        printf("Joueur 2.\n");
-        if (clientSockets[0] < 0 && clientSockets[1] < 0) {
+        //clientSockets[0] = accept(serveurSocket, (sockaddr*) &clientAdresse, (socklen_t *) &clientAdresseTaille);
+        //printf("Joueur 1.\n");
+        //clientSockets[1] = accept(serveurSocket, (sockaddr*) &clientAdresse, (socklen_t *) &clientAdresseTaille);
+        //printf("Joueur 2.\n");
+
+        struct donnees_partie partie;
+        partie.joueur_1 = accept(serveurSocket, (sockaddr*) &clientAdresse, (socklen_t *) &clientAdresseTaille);
+        partie.joueur_2 = accept(serveurSocket, (sockaddr*) &clientAdresse, (socklen_t *) &clientAdresseTaille);
+
+        if (partie.joueur_1 < 0 && partie.joueur_2 < 0) {
 
             perror("Impossible d'accepter la connexion avec les clients.");
             exit(1);
         } else {
 
             // Création du thread pour le nouveau client
-            if(pthread_create(&threadClient, NULL, gestionnairePartie, &clientSockets) == -1) {
+            if(pthread_create(&threadClient, NULL, gestionnairePartie, &partie) == -1) {
                 perror("Impossible de créer un thread pour le client.");
             }
 

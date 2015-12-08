@@ -9,17 +9,18 @@
 #include <stdlib.h>
 #include "gestionnaire-partie.h"
 #include "../morpion-outils/outils-messages.h"
+#include "morpion-moteur.c"
 
 void *gestionnairePartie(void *arg) {
 
-    int *clientSockets;
-    clientSockets = (int*) arg;
+    struct donnees_partie *partie = arg;
 
     char *messageClient[2];
-    messageClient[0] = lireMessage(clientSockets[0]);
-    messageClient[1] = lireMessage(clientSockets[1]);
+    messageClient[0] = lireMessage(partie->joueur_1);
+    messageClient[1] = lireMessage(partie->joueur_2);
 
-
+    int grille[NB_LIG][NB_COL];
+    initialiseGrille(grille);
 
     // Lire le message reçu
     if ((int) strlen(messageClient[0]) <= 0 || (int) strlen(messageClient[1]) <= 0) {
@@ -34,73 +35,52 @@ void *gestionnairePartie(void *arg) {
         strcat(message, messageClient[1]);
 
         // Envoyer une réponse
-        envoyerMessage(clientSockets[0], message);
-        envoyerMessage(clientSockets[1], message);
+        envoyerMessage(partie->joueur_1, message);
+        envoyerMessage(partie->joueur_2, message);
     }
 
     //Lire OK et demander au joueur 1 de jouer
-    messageClient[0] = lireMessage(clientSockets[0]);
-    messageClient[1] = lireMessage(clientSockets[1]);
+    messageClient[0] = lireMessage(partie->joueur_1);
+    messageClient[1] = lireMessage(partie->joueur_2);
 
     if ((int) strlen(messageClient[0]) <= 0 || (int) strlen(messageClient[1]) <= 0) {
         perror("connexion avec le client interrompue.\n");
     } else {
         // Envoyer une réponse
-        envoyerMessage(clientSockets[0], "PLAY_");
+        envoyerMessage(partie->joueur_1, "PLAY_");
     }
 
     int joueur = 0;
 
     while(1) {
 
-        /*// Faire jouer le premier joueur
-        messageClient[0] = lireMessage(clientSockets[0]);
-        if ((int) strlen(messageClient[0]) <= 0) {
-            perror("connexion avec le joueur 1 interrompue.\nFin de la partie.\n");
-            envoyerMessage(clientSockets[1], "connexion avec le joueur 1 interrompue.\nFin de la partie.\n");
+        if (gestionTourJoueur(partie, joueur%2, (joueur+1)%2, grille) == PARTIE_FIN) {
+            // TODO envoyer message de fin aux joueurs
             break;
-        } else {
-            printf("Joueur 1 envoie : %s\n", messageClient[0]);
-
-            envoyerMessage(clientSockets[0], messageClient[0]);
-            envoyerMessage(clientSockets[1], messageClient[0]);
         }
-
-        // Faire jouer le deuxième joueur
-        messageClient[1] = lireMessage(clientSockets[1]);
-        if ((int) strlen(messageClient[1]) <= 0) {
-            perror("connexion avec le joueur 2 interrompue.\nFin de la partie.\n");
-            envoyerMessage(clientSockets[0], "connexion avec le joueur 2 interrompue.\nFin de la partie.\n");
-            break;
-        } else {
-            printf("Joueur 1 envoie : %s\n", messageClient[1]);
-
-            envoyerMessage(clientSockets[0], messageClient[0]);
-            envoyerMessage(clientSockets[1], messageClient[0]);
-        }*/
-
-        gestionnaireJoueur(clientSockets, joueur%2, (joueur+1)%2);
 
         joueur++;
     }
 
     /* === FIN DE LA CONNEXION AVEC LE CLIENT === */
     // Fermeture du socket
-    close(clientSockets[0]);
-    close(clientSockets[1]);
+    close(partie->joueur_1);
+    close(partie->joueur_2);
     printf("Fin de la connexion avec le client.\n");
 
     // Supprimer le thread
     pthread_exit(NULL);
 }
 
-int gestionnaireJoueur(int *clientSockets, int joueurCourant, int joueurSuivant) {
+int gestionTourJoueur(struct donnees_partie *partie, int joueurCourant, int joueurSuivant, int grille[NB_LIG][NB_COL]) {
+    int clientSockets[2] = {partie->joueur_1,partie->joueur_2};
+
     char *messageRecu = lireMessage(clientSockets[joueurCourant]);
 
     if ((int) strlen(messageRecu) <= 0) {
         perror("Connexion avec le joueur courant interrompue.\nFin de la partie.\n");
-        envoyerMessage(clientSockets[(joueurCourant+1)%2], "connexion avec le joueur 2 interrompue.\nFin de la partie.\n");
-        return -1;
+        envoyerMessage(clientSockets[(joueurCourant+1)%2], "Connexion avec l'autre joueur interrompue.\nFin de la partie.\n");
+        return PARTIE_FIN;
     }
 
     char **messageRecuTraite = analyserMessage(messageRecu);
@@ -108,22 +88,27 @@ int gestionnaireJoueur(int *clientSockets, int joueurCourant, int joueurSuivant)
     // Analyse de la requete
     switch (analyserRequete(messageRecuTraite[0])) {
         case MESSAGE_RECU_LOCATION:
-            gestionnairePlacerSymbole(messageRecuTraite);
+            gestionnairePlacerSymbole(messageRecuTraite, grille, joueurCourant, clientSockets[joueurCourant]);
             envoyerMessage(clientSockets[joueurSuivant], "PLAY_");
             break;
         case MESSAGE_RECU_QUIT:
-            break;
+            return PARTIE_FIN;
         default:
             break;
     }
 
-    return 0;
+    return PARTIE_CONTINUER;
 }
 
-void gestionnairePlacerSymbole(char **messageRecuTraite){
-    int x = messageRecuTraite[1][0];
-    int y = messageRecuTraite[2][0];
+void gestionnairePlacerSymbole(char **messageRecuTraite, int grille[NB_LIG][NB_COL], int joueurCourant, int socketJoueurCourant){
+    int ligne = messageRecuTraite[1][0];
+    int colonne = messageRecuTraite[2][0];
+
+    while (metUnPionSurLaGrille(ligne, colonne, grille, joueurCourant+1)) {
+        envoyerMessage(socketJoueurCourant, "PLAYERROR_");
+
+    }
 
     // jouer un pion
-    printf("Joueur %d - %d\n", x, y);
+    printf("Pion joué : %d - %d\n", ligne, colonne);
 }
