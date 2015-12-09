@@ -76,7 +76,7 @@ char** analyserMessage(char *messageRecu) {
     int k = 1;
 
     char **messageTraite;
-    messageTraite = malloc(sizeof(int));
+    messageTraite = malloc(sizeof(char*));
     messageTraite[j] = malloc(0);
 
     while (messageRecu[i] != '\0') {
@@ -86,7 +86,7 @@ char** analyserMessage(char *messageRecu) {
             j++;
             k=0;
 
-            messageTraite = realloc(messageTraite, (j+1) * sizeof(int));
+            messageTraite = realloc(messageTraite, (j+1) * sizeof(char*));
             messageTraite[j] = malloc(0);
         } else {
             messageTraite[j] = realloc(messageTraite[j], k*sizeof(char));

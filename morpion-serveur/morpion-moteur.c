@@ -5,32 +5,37 @@
 
 **********************************************************************/
 #include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "morpion-moteur.h"
 #include "gestionnaire-partie.h"
+#include "./../morpion-outils/outils-messages.h"
 
 //typedef enum {FALSE, TRUE} Boolean;
 //static ValeurGrille grille[NB_LIG][NB_COL]; /* grille du morpion valeurs possibles VIDE, ROND ou CROIX */
 
-#define TRUE 1
-#define FALSE 0
 
-#define VIDE 0
-#define CROIX 1
-#define ROND 2
 
 /* indique quel sera le prochain joueur a mettre un pion dans la grille ie soit ROND soit CROIX */
-static int prochainJoueur = ROND;
+//static int prochainJoueur = ROND;
 
 
 /*
  * Initiliase la grille du morpion a vide
  */
-void initialiseGrille(int grille[NB_LIG][NB_COL]) {
-  int i, j;
-  for (i=0; i<NB_LIG; i++) {
-    for (j=0; j<NB_COL; j++) {
-      grille[i][j] = VIDE;
+int ** initialiseGrille() {
+    int i, j;
+    int **grille;
+    grille = malloc(NB_LIG*sizeof(int));
+
+    for (i=0; i<NB_LIG; i++) {
+        grille[i] = malloc(NB_COL * sizeof(int));
+        for (j=0; j<NB_COL; j++) {
+            grille[i][j] = VIDE;
+        }
     }
-  }
+
+    return grille;
 }
 
 /*
@@ -53,9 +58,48 @@ void initialiseGrille(int grille[NB_LIG][NB_COL]) {
 	break;
       }
     }
-    printf("\n"); /* fin de la ligne */
+    printf("\n");  fin de la ligne */
   /*}
 }*/
+char* grilleAEnvoyer(int **grille) {
+    int i, j, x;
+      x = 0;
+    char* stringGrille = malloc(TAILLE_BUFFER*sizeof(char));
+      strcat(stringGrille, "BOARD_");
+
+      int rond = ROND;
+      int croix = CROIX;
+      int vide = VIDE;
+
+
+    for (i=0; i<NB_LIG; i++) {
+        for (j=0; j<NB_COL; j++) {
+
+            switch (grille[i][j]) {
+                case VIDE:
+                    strcat(stringGrille, (const char *) &vide);
+                    break;
+                case CROIX:
+                    strcat(stringGrille, (const char *) &croix);
+                    break;
+                case ROND:
+                    strcat(stringGrille, (const char *) &rond);
+                    break;
+            }
+
+            if(i+j != 4) {
+                strcat(stringGrille, "_");
+            }
+
+            x++;
+        }
+    }
+
+    printf("Grille : %s\n", stringGrille);
+
+    return stringGrille;
+}
+
 
 /*
   Saisie les coordonnees du nouveau pion a mettre sur la grille
@@ -63,31 +107,40 @@ void initialiseGrille(int grille[NB_LIG][NB_COL]) {
   deja un pion, la saisie est refusee, un message d'erreur est affichee,
   et le joueur doit rejoue
  */
-int metUnPionSurLaGrille(int ligne, int col, int grille[NB_LIG][NB_COL], int joueurCourant) {
-  int saisieCorrecte = FALSE;
+int metUnPionSurLaGrille(int ligne, int col, int **grille, int joueurCourant) {
+    int saisieCorrecte = FALSE;
 
-//  printf("Numeros de ligne et de colonne: ");
-
-//  do {
-//    scanf("%d %d", &ligne, &col);
-//    printf("\n");
-
-  if ((ligne > 0) && (ligne <= NB_LIG) && (col > 0) && (col <= NB_COL)) {
-    ligne--;
-    col--;
-
-    if (grille[ligne][col] != VIDE) {
-      return saisieCorrecte;
+    int lol;
+    printf("Joueur courant : %d\n", joueurCourant);
+    if(joueurCourant == 1) {
+        lol = CROIX;
     } else {
-      saisieCorrecte = TRUE;
-      grille[ligne][col] = joueurCourant;
+        lol = ROND;
     }
-  } else {
-    return saisieCorrecte;
-  }
-//  } while (!saisieCorrecte);
 
-  return saisieCorrecte;
+    if ((ligne > 0) && (ligne <= NB_LIG) && (col > 0) && (col <= NB_COL)) {
+        ligne--;
+        col--;
+
+        if (grille[ligne][col] != VIDE) {
+            return saisieCorrecte;
+        } else {
+            saisieCorrecte = TRUE;
+            grille[ligne][col] = lol;
+        }
+    } else {
+        return saisieCorrecte;
+    }
+    int i,j;
+    for(i = 0; i<3;i++) {
+        for( j=0; j<3;j++) {
+            printf("%d", grille[i][j]);
+        }
+    }
+
+    printf("\n");
+
+    return saisieCorrecte;
 }
 
 /* Teste si l'un des joueurs a gagne (ligne, colonne ou diagonale remplit
@@ -98,7 +151,7 @@ int metUnPionSurLaGrille(int ligne, int col, int grille[NB_LIG][NB_COL], int jou
    Retourne TRUE si la grille est pleine ou si un joueur a gagne
             FALSE sinon
 */
-int testeFinJeu(int grille[NB_LIG][NB_COL]) {
+int testeFinJeu(int **grille) {
   int i,j;
   int joueurGagnant; /* pour connaitre quel est le gagnant ie soit CROIX soit ROND */
   int estFini = FALSE;

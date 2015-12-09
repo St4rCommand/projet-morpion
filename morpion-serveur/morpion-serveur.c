@@ -5,7 +5,6 @@
 #include <string.h>
 #include <pthread.h>
 #include "morpion-serveur.h"
-#include "gestionnaire-client.h"
 #include "gestionnaire-partie.h"
 
 #define TAILLE_SERVEUR_MACHINE_NOM 256
@@ -79,6 +78,8 @@ int main(int argc, char **argv)
     /* === LANCEMENT DU SERVEUR === */
     // Mise à l'écoute du serveur
     listen(serveurSocket, 5);
+    int i = 0;
+    struct donnees_partie parties[10];
     while (1) {
 
         printf("Attente de la connexion d'un client.\n");
@@ -89,22 +90,23 @@ int main(int argc, char **argv)
         //clientSockets[1] = accept(serveurSocket, (sockaddr*) &clientAdresse, (socklen_t *) &clientAdresseTaille);
         //printf("Joueur 2.\n");
 
-        struct donnees_partie partie;
-        partie.joueur_1 = accept(serveurSocket, (sockaddr*) &clientAdresse, (socklen_t *) &clientAdresseTaille);
-        partie.joueur_2 = accept(serveurSocket, (sockaddr*) &clientAdresse, (socklen_t *) &clientAdresseTaille);
+        parties[i].joueur_1 = accept(serveurSocket, (sockaddr*) &clientAdresse, (socklen_t *) &clientAdresseTaille);
+        parties[i].joueur_2 = accept(serveurSocket, (sockaddr*) &clientAdresse, (socklen_t *) &clientAdresseTaille);
 
-        if (partie.joueur_1 < 0 && partie.joueur_2 < 0) {
+        if (parties[i].joueur_1 < 0 && parties[i].joueur_2 < 0) {
 
             perror("Impossible d'accepter la connexion avec les clients.");
             exit(1);
         } else {
 
             // Création du thread pour le nouveau client
-            if(pthread_create(&threadClient, NULL, gestionnairePartie, &partie) == -1) {
+            if(pthread_create(&threadClient, NULL, gestionnairePartie, &parties[i]) == -1) {
                 perror("Impossible de créer un thread pour le client.");
             }
 
             printf("Connexion avec un client établie.\n");
+
+            i++;
         }
     }
 

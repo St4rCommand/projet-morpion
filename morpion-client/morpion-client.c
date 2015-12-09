@@ -6,6 +6,7 @@
 #include <unistd.h>
 #include "morpion-client.h"
 #include "./../morpion-outils/outils-messages.h"
+#include "../morpion-serveur/morpion-moteur.h"
 
 #define SERVEUR_IP "127.0.0.1"
 
@@ -131,12 +132,15 @@ char* gestionnaireMessageClient(char *messageRecu) {
         case MESSAGE_RECU_PLAY:
             return gestionnaireJouer();
         case MESSAGE_RECU_BOARD:
-            return "";
+            gestionnairePlateau(messageRecuTraite);
+            return "OK_";
         case MESSAGE_RECU_PLAYERROR:
-            return "LOCATION_X_Y";
+            return gestionnaireReJouer();
         case MESSAGE_RECU_WIN:
+            gestionnaireVictoire();
             return "QUIT_";
         case MESSAGE_RECU_LOOSE:
+            gestionnaireDefaite();
             return "QUIT_";
         default:
             return "";
@@ -149,22 +153,60 @@ char* gestionnaireAccueil(char **messageRecu) {
     return "OK_";
 }
 
-char* gestionnaireJouer() {
-    int x,y;
+void gestionnairePlateau(char **messageRecu) {
+    int i=0;
 
-    printf("Position X : ");
-    scanf("%d",&x);
+    for(i=1;i<=9;i++) {
+
+        switch(messageRecu[i][0]) {
+            case VIDE:
+                printf("_ ");
+                break;
+            case CROIX:
+                printf("X ");
+                break;
+            case ROND:
+                printf("O ");
+                break;
+        }
+
+        if(i%3 == 0) {
+            printf("\n");
+        }
+    }
+
+}
+
+char* gestionnaireReJouer() {
+    printf("Erreur de saisie, veuillez rejouer ! \n");
+
+    return gestionnaireJouer();
+}
+
+char* gestionnaireJouer() {
+    int ligne, colonne;
+
+    printf("Ligne : ");
+    scanf("%d",&ligne);
     printf("\n");
 
-    printf("Position Y :");
-    scanf("%d", &y);
+    printf("Colonne : ");
+    scanf("%d", &colonne);
     printf("\n");
 
     char *message = malloc(TAILLE_BUFFER * sizeof(char));
     strcat(message, "LOCATION_");
-    strcat(message, (const char *) &x);
+    strcat(message, (const char *) &ligne);
     strcat(message, "_");
-    strcat(message, (const char *) &y);
+    strcat(message, (const char *) &colonne);
 
     return message;
+}
+
+void gestionnaireVictoire() {
+    printf("Vous avez gagné !!!\n");
+}
+
+void gestionnaireDefaite() {
+    printf("Vous avez perdu ...\n");
 }

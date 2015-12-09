@@ -15,4 +15,12 @@ char* gestionnaireAccueil(char **messageRecu);
 
 char* gestionnaireJouer();
 
+char* gestionnaireReJouer();
+
+void gestionnairePlateau(char **messageRecu);
+
+void gestionnaireVictoire();
+
+void gestionnaireDefaite();
+
 #endif //PROJET_MORPION_MORPION_CLIENT_H

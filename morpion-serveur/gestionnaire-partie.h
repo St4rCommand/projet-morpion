@@ -8,8 +8,9 @@
 #define PARTIE_CONTINUER 0
 #define PARTIE_FIN 1
 
-#define NB_LIG 3
-#define NB_COL 3
+#include "morpion-moteur.h"
+
+
 
 struct donnees_partie {
     int joueur_1;
@@ -18,9 +19,9 @@ struct donnees_partie {
 
 void *gestionnairePartie(void *arg);
 
-int gestionTourJoueur(struct donnees_partie *partie, int joueurCourant, int joueurSuivant, int grille[NB_LIG][NB_COL]);
+int gestionTourJoueur(struct donnees_partie *partie, int joueurCourant, int joueurSuivant, int **grille);
 
-void gestionnairePlacerSymbole(char **messageRecuTraite, int grille[NB_LIG][NB_COL], int joueurCourant, int socketJoueurCourant);
+void gestionnairePlacerSymbole(char **messageRecuTraite, int **grille, int joueurCourant, int socketJoueurCourant);
 
 
 #endif //PROJET_MORPION_GESTIONNAIRE_PARTIE_H
