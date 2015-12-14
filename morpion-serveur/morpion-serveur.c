@@ -82,7 +82,7 @@ int main(int argc, char **argv)
     struct donnees_partie parties[10];
     while (1) {
 
-        printf("Attente de la connexion d'un client.\n");
+        printf("Attente de la connexion de deux nouveaux clients.\n");
 
         // Attente de connexion d'un client
         //clientSockets[0] = accept(serveurSocket, (sockaddr*) &clientAdresse, (socklen_t *) &clientAdresseTaille);
@@ -104,7 +104,7 @@ int main(int argc, char **argv)
                 perror("Impossible de créer un thread pour le client.");
             }
 
-            printf("Connexion avec un client établie.\n");
+            printf("Connexion avec deux clients établie. Création de la partie.\n");
 
             i++;
         }

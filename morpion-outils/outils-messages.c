@@ -23,7 +23,7 @@ char* lireMessage(int socket) {
         exit(1);
     }*/
 
-    printf("Message reçu : %s\n", message);
+    printf("Reçu de %d : %s\n", socket, message);
 
     return message;
 }
@@ -36,7 +36,7 @@ void envoyerMessage(int socket, char *message) {
         perror("Le message n'a pas pu etre envoyé.");
     }
 
-    printf("Message envoyé : %s\n", message);
+    printf("Envoyé à %d : %s\n", socket, message);
 }
 
 void saisirMessage(char* messageSaisi, char *messageAffiche) {

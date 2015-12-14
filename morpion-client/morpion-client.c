@@ -111,6 +111,8 @@ void gestionnairePartieClient(int clientSocket) {
         if((int) strlen(messageRecu) <= 0) {
             perror("connexion avec le serveur interrompue.\n");
             break;
+        } else if (comparerCDC(messageRecu, "QUIT_")) {
+            break;
         }
 
         messageEnvoye = gestionnaireMessageClient(messageRecu);
@@ -138,10 +140,12 @@ char* gestionnaireMessageClient(char *messageRecu) {
             return gestionnaireReJouer();
         case MESSAGE_RECU_WIN:
             gestionnaireVictoire();
-            return "QUIT_";
+            return "OK_";
         case MESSAGE_RECU_LOOSE:
             gestionnaireDefaite();
-            return "QUIT_";
+            return "OK_";
+        case MESSAGE_RECU_QUIT:
+            return "OK_";
         default:
             return "";
     }
@@ -178,7 +182,7 @@ void gestionnairePlateau(char **messageRecu) {
 }
 
 char* gestionnaireReJouer() {
-    printf("Erreur de saisie, veuillez rejouer ! \n");
+    printf("Position incorrecte, veuillez ressaisir la position ! \n");
 
     return gestionnaireJouer();
 }
@@ -188,11 +192,9 @@ char* gestionnaireJouer() {
 
     printf("Ligne : ");
     scanf("%d",&ligne);
-    printf("\n");
 
     printf("Colonne : ");
     scanf("%d", &colonne);
-    printf("\n");
 
     char *message = malloc(TAILLE_BUFFER * sizeof(char));
     strcat(message, "LOCATION_");

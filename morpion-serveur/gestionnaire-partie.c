@@ -9,7 +9,6 @@
 #include <stdlib.h>
 #include "gestionnaire-partie.h"
 #include "../morpion-outils/outils-messages.h"
-#include "morpion-moteur.h"
 
 void *gestionnairePartie(void *arg) {
 
@@ -21,19 +20,10 @@ void *gestionnairePartie(void *arg) {
 
     int **grille = initialiseGrille();
 
-
-    int i,j;
-    for(i = 0; i<3;i++) {
-        for( j=0; j<3;j++) {
-            printf("%d", grille[i][j]);
-        }
-    }
-
     // Lire le message reçu
     if ((int) strlen(messageClient[0]) <= 0 || (int) strlen(messageClient[1]) <= 0) {
         perror("connexion avec le client interrompue.\n");
     } else {
-        printf("Messages reçus.\n");
 
         char *message = malloc(TAILLE_BUFFER * sizeof(char));
         strcat(message, "GAME_");
@@ -71,9 +61,11 @@ void *gestionnairePartie(void *arg) {
 
     /* === FIN DE LA CONNEXION AVEC LE CLIENT === */
     // Fermeture du socket
+    envoyerMessage(partie->joueur_1, "QUIT_");
+    envoyerMessage(partie->joueur_2, "QUIT_");
     close(partie->joueur_1);
     close(partie->joueur_2);
-    printf("Fin de la connexion avec le client.\n");
+    printf("Fin de la partie. %d et %d déconnectés.\n", partie->joueur_1, partie->joueur_2);
 
     // Supprimer le thread
     pthread_exit(NULL);
@@ -86,7 +78,8 @@ int gestionTourJoueur(struct donnees_partie *partie, int joueurCourant, int joue
 
     if ((int) strlen(messageRecu) <= 0) {
         perror("Connexion avec le joueur courant interrompue.\nFin de la partie.\n");
-        envoyerMessage(clientSockets[(joueurCourant+1)%2], "Connexion avec l'autre joueur interrompue.\nFin de la partie.\n");
+        //envoyerMessage(clientSockets[(joueurCourant+1)%2], "QUIT_Connexion avec l'autre joueur interrompue.\nFin de la partie.\n");
+        envoyerMessage(clientSockets[(joueurCourant+1)%2], "QUIT_");
         return PARTIE_FIN;
     }
 
@@ -102,13 +95,14 @@ int gestionTourJoueur(struct donnees_partie *partie, int joueurCourant, int joue
             if ((int) strlen(lireMessage(clientSockets[joueurCourant])) <= 0 || (int) strlen(lireMessage(clientSockets[joueurSuivant])) <= 0) {
                 perror("connexion avec le client interrompue.\n");
             } else {
-                envoyerMessage(clientSockets[joueurSuivant], "PLAY_");
-            }
 
-            if(testeFinJeu(grille)) {
-                envoyerMessage(clientSockets[joueurCourant], "WIN_");
-                envoyerMessage(clientSockets[joueurSuivant], "LOOSE_");
-                return PARTIE_FIN;
+                if(testeFinJeu(grille)) {
+                    envoyerMessage(clientSockets[joueurCourant], "WIN_");
+                    envoyerMessage(clientSockets[joueurSuivant], "LOOSE_");
+                    return PARTIE_FIN;
+                }
+
+                envoyerMessage(clientSockets[joueurSuivant], "PLAY_");
             }
 
             return PARTIE_CONTINUER;
@@ -133,7 +127,4 @@ void gestionnairePlacerSymbole(char **messageRecuTraite, int **grille, int joueu
         colonne = messageRecuTraite[2][0];
         saisieCorrect = metUnPionSurLaGrille(ligne, colonne, grille, joueurCourant+1);
     }
-
-    // jouer un pion
-    printf("Pion joué : %d - %d\n", ligne, colonne);
 }

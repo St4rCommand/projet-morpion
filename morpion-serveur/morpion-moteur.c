@@ -8,21 +8,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include "morpion-moteur.h"
-#include "gestionnaire-partie.h"
 #include "./../morpion-outils/outils-messages.h"
 
-//typedef enum {FALSE, TRUE} Boolean;
-//static ValeurGrille grille[NB_LIG][NB_COL]; /* grille du morpion valeurs possibles VIDE, ROND ou CROIX */
-
-
-
-/* indique quel sera le prochain joueur a mettre un pion dans la grille ie soit ROND soit CROIX */
-//static int prochainJoueur = ROND;
-
-
-/*
- * Initiliase la grille du morpion a vide
- */
 int ** initialiseGrille() {
     int i, j;
     int **grille;
@@ -38,29 +25,6 @@ int ** initialiseGrille() {
     return grille;
 }
 
-/*
-  Affiche la grille du morpion
-  _ indique case vide, O pion joueur 1 et X pion jour 2
- */
-/*void afficheGrille(int grille[NB_LIG][NB_COL]) {
-  int i, j;
-  for (i=0; i<NB_LIG; i++) {
-    for (j=0; j<NB_COL; j++) {
-      switch (grille[i][j]) {
-      case VIDE:
-	printf("_ ");
-	break;
-      case ROND:
-	printf("O ");
-	break;
-      case CROIX:
-	printf("X ");
-	break;
-      }
-    }
-    printf("\n");  fin de la ligne */
-  /*}
-}*/
 char* grilleAEnvoyer(int **grille) {
     int i, j, x;
       x = 0;
@@ -95,8 +59,6 @@ char* grilleAEnvoyer(int **grille) {
         }
     }
 
-    printf("Grille : %s\n", stringGrille);
-
     return stringGrille;
 }
 
@@ -110,12 +72,11 @@ char* grilleAEnvoyer(int **grille) {
 int metUnPionSurLaGrille(int ligne, int col, int **grille, int joueurCourant) {
     int saisieCorrecte = FALSE;
 
-    int lol;
-    printf("Joueur courant : %d\n", joueurCourant);
+    int signeJoueurCourant;
     if(joueurCourant == 1) {
-        lol = CROIX;
+        signeJoueurCourant = CROIX;
     } else {
-        lol = ROND;
+        signeJoueurCourant = ROND;
     }
 
     if ((ligne > 0) && (ligne <= NB_LIG) && (col > 0) && (col <= NB_COL)) {
@@ -126,19 +87,11 @@ int metUnPionSurLaGrille(int ligne, int col, int **grille, int joueurCourant) {
             return saisieCorrecte;
         } else {
             saisieCorrecte = TRUE;
-            grille[ligne][col] = lol;
+            grille[ligne][col] = signeJoueurCourant;
         }
     } else {
         return saisieCorrecte;
     }
-    int i,j;
-    for(i = 0; i<3;i++) {
-        for( j=0; j<3;j++) {
-            printf("%d", grille[i][j]);
-        }
-    }
-
-    printf("\n");
 
     return saisieCorrecte;
 }
@@ -153,7 +106,6 @@ int metUnPionSurLaGrille(int ligne, int col, int **grille, int joueurCourant) {
 */
 int testeFinJeu(int **grille) {
   int i,j;
-  int joueurGagnant; /* pour connaitre quel est le gagnant ie soit CROIX soit ROND */
   int estFini = FALSE;
 
   /* Teste s'il y a un gagnant */
@@ -170,7 +122,6 @@ int testeFinJeu(int **grille) {
 	/* ligne 1 */ ((grille[1][0] == grille[1][1]) && (grille[1][1] == grille[1][2])) ||
 	/* diagonale */ ((grille[0][0] == grille[1][1]) && (grille[1][1] == grille[2][2])) ||
 	/* autre diag */ ((grille[0][2] == grille[1][1]) && (grille[1][1] == grille[2][0]))) {
-      joueurGagnant = grille[1][1]; /* ie ROND ou CROIX */
       estFini = TRUE;
     }
   }
@@ -179,7 +130,6 @@ int testeFinJeu(int **grille) {
   if ((!estFini) && (grille[0][0] != VIDE)) {
     if ( /* ligne 0 */ ((grille[0][0] == grille[0][1]) && (grille[0][1] == grille[0][2])) ||
 	 /* colonne 0*/ ((grille[0][0] == grille[1][0]) && (grille[1][0] == grille[2][0]))) {
-      joueurGagnant = grille[0][0];
       estFini = TRUE;
     }
   }
@@ -188,18 +138,11 @@ int testeFinJeu(int **grille) {
   if ((!estFini) && (grille[2][2] != VIDE)) {
     if ( /* ligne 2 */ ((grille[2][0] == grille[2][1]) && (grille[2][1] == grille[2][2])) ||
 	 /* colonne 2 */ ((grille[0][2] == grille[1][2]) && (grille[1][2] == grille[2][2]))) {
-      joueurGagnant = grille[2][2];
       estFini = TRUE;
     }
   }
 
   if (estFini) {
-    printf("Felicitations au joueur ayant les ");
-    if (joueurGagnant == ROND)
-      printf("ronds ");
-    else
-      printf("croix ");
-    printf("qui a gagne.\n");
     return TRUE;
   }
 
