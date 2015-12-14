@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include "gestionnaire-partie.h"
 #include "../morpion-outils/outils-messages.h"
+#include "morpion-moteur.h"
 
 void *gestionnairePartie(void *arg) {
 

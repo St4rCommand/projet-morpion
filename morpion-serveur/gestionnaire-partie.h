@@ -8,7 +8,6 @@
 #define PARTIE_CONTINUER 0
 #define PARTIE_FIN 1
 
-#include "morpion-moteur.h"
 
 
 
