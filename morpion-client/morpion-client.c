@@ -85,7 +85,7 @@ int main(int argc, char **argv)
     saisirMessage(message, "Pseudonyme : ");
     // Envoi du message
     envoyerMessage(clientSocket, message);
-
+    // Gestion de la partie
     gestionnairePartieClient(clientSocket);
 
 
@@ -97,6 +97,7 @@ int main(int argc, char **argv)
     exit(0);
 }
 
+// Gestion d'une partie de Morpion
 void gestionnairePartieClient(int clientSocket) {
 
     char *messageRecu;
@@ -107,20 +108,24 @@ void gestionnairePartieClient(int clientSocket) {
         // Lire le message
         messageRecu = lireMessage(clientSocket);
 
-        // Afficher la réponse reçue
+        // Si le message reçu est vide, quitter
         if((int) strlen(messageRecu) <= 0) {
             perror("connexion avec le serveur interrompue.\n");
             break;
+        // Si on reçoit l'ordre de fin, quitter
         } else if (comparerCDC(messageRecu, "QUIT_")) {
             break;
         }
 
+        // Gestion du message reçu
         messageEnvoye = gestionnaireMessageClient(messageRecu);
 
+        // Envoyer la réponse au serveur
         envoyerMessage(clientSocket, messageEnvoye);
     }
 }
 
+// Gestion du message reçu
 char* gestionnaireMessageClient(char *messageRecu) {
 
     // Traitement du message reçu
@@ -151,12 +156,14 @@ char* gestionnaireMessageClient(char *messageRecu) {
     }
 }
 
+// Accueil de la partie
 char* gestionnaireAccueil(char **messageRecu) {
     printf("Bienvenue %s et %s dans une nouvelle partie de morpion.\n", messageRecu[1], messageRecu[2]);
 
     return "OK_";
 }
 
+// Affichage du plateau
 void gestionnairePlateau(char **messageRecu) {
     int i=0;
 
@@ -181,12 +188,14 @@ void gestionnairePlateau(char **messageRecu) {
 
 }
 
+// Gestion d'une erreur de saisie
 char* gestionnaireReJouer() {
     printf("Position incorrecte, veuillez ressaisir la position ! \n");
 
     return gestionnaireJouer();
 }
 
+// Saisie d'une position
 char* gestionnaireJouer() {
     int ligne, colonne;
 
@@ -205,10 +214,12 @@ char* gestionnaireJouer() {
     return message;
 }
 
+// Affichage victoire
 void gestionnaireVictoire() {
     printf("Vous avez gagné !!!\n");
 }
 
+// Affichage défaite
 void gestionnaireDefaite() {
     printf("Vous avez perdu ...\n");
 }

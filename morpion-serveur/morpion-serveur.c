@@ -11,9 +11,6 @@
 
 int main(int argc, char **argv)
 {
-    // TODO à revoir pour vider la mémoire lors d'un Ctrl+C
-//    if (signal(SIGINT, endHandler) == SIG_ERR) {printf("coucou");}
-
     printf("Lancement du serveur.\n");
 
 
@@ -69,12 +66,6 @@ int main(int argc, char **argv)
     //Initialisation du thread
     pthread_t threadClient;
 
-
-    // Tableau des deux joueurs de la partie
-    //int clientSockets[2];
-    //clientSockets[0] = clientSocket;
-    //clientSockets[1] = clientSocket;
-
     /* === LANCEMENT DU SERVEUR === */
     // Mise à l'écoute du serveur
     listen(serveurSocket, 5);
@@ -83,12 +74,6 @@ int main(int argc, char **argv)
     while (1) {
 
         printf("Attente de la connexion de deux nouveaux clients.\n");
-
-        // Attente de connexion d'un client
-        //clientSockets[0] = accept(serveurSocket, (sockaddr*) &clientAdresse, (socklen_t *) &clientAdresseTaille);
-        //printf("Joueur 1.\n");
-        //clientSockets[1] = accept(serveurSocket, (sockaddr*) &clientAdresse, (socklen_t *) &clientAdresseTaille);
-        //printf("Joueur 2.\n");
 
         parties[i].joueur_1 = accept(serveurSocket, (sockaddr*) &clientAdresse, (socklen_t *) &clientAdresseTaille);
         parties[i].joueur_2 = accept(serveurSocket, (sockaddr*) &clientAdresse, (socklen_t *) &clientAdresseTaille);
@@ -113,6 +98,7 @@ int main(int argc, char **argv)
 //    exit(0);
 }
 
+// Initialiser les paramètres du serveur
 void initServeurAdresse(sockaddr_in *serveurAdresse, hostent *serveurInformations) {
     bcopy(
             serveurInformations->h_addr,
@@ -125,18 +111,10 @@ void initServeurAdresse(sockaddr_in *serveurAdresse, hostent *serveurInformation
 //    serveurAdresse.sin_zero = memset(serveurAdresse.sin_zero, 0, 8);
 }
 
+// Initialiser les paramètres du client
 void initClientAdresse(sockaddr_in *clientAdresse) {
     clientAdresse->sin_family = AF_INET;
     clientAdresse->sin_port = htons(5000);
     clientAdresse->sin_addr.s_addr = INADDR_ANY;
 //    clientAdresse.sin_zero = memset(serveurAdresse.sin_zero, 0, 8);
 }
-
-/*void endHandler(int signal) {
-
-    if (signal == SIGINT) {
-        printf("Arrêt du serveur\n");
-
-        exit(0);
-    }
-}*/

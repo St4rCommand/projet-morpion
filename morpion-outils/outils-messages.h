@@ -12,13 +12,10 @@
 #define MESSAGE_RECU_LOCATION 8
 #define MESSAGE_RECU_OK 9
 
-// Lire un message
 char* lireMessage(int socket);
 
-// Envoyer un message
 void envoyerMessage(int socket, char *message);
 
-// Saisir un message
 void saisirMessage(char* messageSaisi, char *messageAffiche);
 
 int analyserRequete(char *messageRecu);

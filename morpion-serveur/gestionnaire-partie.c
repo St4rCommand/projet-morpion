@@ -11,6 +11,7 @@
 #include "../morpion-outils/outils-messages.h"
 #include "morpion-moteur.h"
 
+// Thread de gestion d'une partie
 void *gestionnairePartie(void *arg) {
 
     struct donnees_partie *partie = arg;
@@ -53,7 +54,6 @@ void *gestionnairePartie(void *arg) {
     while(1) {
 
         if (gestionTourJoueur(partie, joueur%2, (joueur+1)%2, grille) == PARTIE_FIN) {
-            // TODO envoyer message de fin aux joueurs
             break;
         }
 
@@ -72,6 +72,7 @@ void *gestionnairePartie(void *arg) {
     pthread_exit(NULL);
 }
 
+// Gestion du tour d'un joueur
 int gestionTourJoueur(struct donnees_partie *partie, int joueurCourant, int joueurSuivant, int **grille) {
     int clientSockets[2] = {partie->joueur_1,partie->joueur_2};
 
@@ -114,6 +115,8 @@ int gestionTourJoueur(struct donnees_partie *partie, int joueurCourant, int joue
     }
 }
 
+// Gestion du placement d'un pion par un joueur
+// Demande au joueur de rejouer si la saisie est incorrecte
 void gestionnairePlacerSymbole(char **messageRecuTraite, int **grille, int joueurCourant, int socketJoueurCourant){
     int ligne = messageRecuTraite[1][0];
     int colonne = messageRecuTraite[2][0];

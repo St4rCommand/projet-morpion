@@ -4,6 +4,7 @@
 #include <string.h>
 #include "outils-messages.h"
 
+// Lire un message reçu
 char* lireMessage(int socket) {
 
     char* message = malloc(TAILLE_BUFFER * sizeof(char));
@@ -28,6 +29,7 @@ char* lireMessage(int socket) {
     return message;
 }
 
+// Envoyer un message
 void envoyerMessage(int socket, char *message) {
     ssize_t longueurMessageEnvoye;
 
@@ -39,12 +41,14 @@ void envoyerMessage(int socket, char *message) {
     printf("Envoyé à %d : %s\n", socket, message);
 }
 
+// Saisir un message
 void saisirMessage(char* messageSaisi, char *messageAffiche) {
     printf("%s", messageAffiche);
     scanf("%s", messageSaisi);
     printf("\n");
 }
 
+// Analyser le code du message
 int analyserRequete(char *messageRecu) {
 
     if (comparerCDC(messageRecu, "GAME")) {
@@ -70,6 +74,7 @@ int analyserRequete(char *messageRecu) {
     return -1;
 }
 
+// Traite le message reçu pour placer chaque paramètre dans un tableau
 char** analyserMessage(char *messageRecu) {
     int i = 0;
     int j = 0;
@@ -100,6 +105,7 @@ char** analyserMessage(char *messageRecu) {
     return messageTraite;
 }
 
+// Comparer deux chaines de caractères
 int comparerCDC(char *chaine1, char *chaine2) {
     int vrai = 1;
 

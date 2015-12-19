@@ -8,9 +8,6 @@
 #define PARTIE_CONTINUER 0
 #define PARTIE_FIN 1
 
-
-
-
 struct donnees_partie {
     int joueur_1;
     int joueur_2;
